@@ -28,12 +28,13 @@ public class SqliteTransactionStep {
         if(args.isEmpty()) {
             sql.createStatement().executeUpdate(requestSql);
         } else {
-            PreparedStatement statement = sql.prepareStatement(requestSql);
-            int idx = 1;
-            for(String arg : args) {
-                statement.setString(idx++, arg);
+            try(PreparedStatement statement = sql.prepareStatement(requestSql)) {
+                int idx = 1;
+                for (String arg : args) {
+                    statement.setString(idx++, arg);
+                }
+                statement.executeUpdate();
             }
-            statement.executeUpdate();
         }
 
     }
