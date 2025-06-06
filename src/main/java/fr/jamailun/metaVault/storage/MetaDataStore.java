@@ -3,7 +3,6 @@ package fr.jamailun.metaVault.storage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
