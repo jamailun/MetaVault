@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -26,9 +27,9 @@ public final class SqliteMetaDataStore implements MetaDataStore {
 
     @Override
     public @NotNull SqliteTransaction newTransaction() {
-        SqliteTransaction transaction = new SqliteTransaction(sqlSupplier);
+        SqliteTransaction transaction = new SqliteTransaction(tableName, sqlSupplier);
         if( ! tableExists.get()) {
-            transaction.addStep(getStructure(), tableName);
+            transaction.addStep(getStructure(tableName), List.of());
             transaction.addCallback(() -> tableExists.set(true));
         }
         return transaction;
@@ -39,13 +40,11 @@ public final class SqliteMetaDataStore implements MetaDataStore {
      * @return static SQL syntax.
      */
     @Contract(pure = true)
-    private static @NotNull String getStructure() {
-        return """
-               CREATE TABLE IF NOT EXIST ?1 (
-                 kv_key varchar(255) PRIMARY KEY,
-                 kv_val string NOT NULL
-               );
-               """;
+    private static @NotNull String getStructure(String table) {
+        return "CREATE TABLE IF NOT EXISTS " + table + " ("
+                + "kv_key varchar(255) PRIMARY KEY,"
+                + "kv_val string NOT NULL"
+                + ");";
     }
 
 }

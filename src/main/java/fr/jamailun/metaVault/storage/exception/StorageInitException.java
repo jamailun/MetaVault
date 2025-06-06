@@ -6,7 +6,11 @@ package fr.jamailun.metaVault.storage.exception;
 public class StorageInitException extends Exception {
 
     public StorageInitException(String storageType, String details, Throwable throwable) {
-        super("with type " + storageType + ": " + details, throwable);
+        super("With type " + storageType + ": " + details, throwable);
+    }
+
+    public StorageInitException(String details) {
+        super(details);
     }
 
 }
