@@ -1,10 +1,12 @@
 package fr.jamailun.metaVault.storage.sqlite;
 
+import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.storage.StorageProvider;
 import fr.jamailun.metaVault.storage.exception.StorageInitException;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -42,12 +44,13 @@ public class SqliteProvider extends StorageProvider<SqliteStorage> {
         }
 
         // Read config
-        String file = readString(config, "file");
+        String fileName = readString(config, "file");
+        File file = new File(MetaVault.dataFolder(), fileName);
 
         // Open I/O
         Connection connection;
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:" + file);
+            connection = DriverManager.getConnection("jdbc:sqlite:" + file.getAbsolutePath());
         } catch(SQLException e) {
             throw initException("Could not open SQLite file.", e);
         }

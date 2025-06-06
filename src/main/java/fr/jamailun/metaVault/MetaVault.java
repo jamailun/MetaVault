@@ -10,6 +10,7 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.logging.Level;
 
 public final class MetaVault extends JavaPlugin {
@@ -61,6 +62,10 @@ public final class MetaVault extends JavaPlugin {
 
     public static void error(@NotNull String message, @NotNull Throwable throwable) {
         instance.getLogger().log(Level.SEVERE, message, throwable);
+    }
+
+    public static @NotNull File dataFolder() {
+        return instance.getDataFolder();
     }
 
 }
