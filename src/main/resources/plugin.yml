@@ -1,0 +1,8 @@
+name: MetaVault
+version: '1.0.0-SNAPSHOT'
+main: fr.jamailun.metaVault.MetaVault
+api-version: '1.21'
+prefix: MeV
+load: STARTUP
+authors: [ jamailun ]
+description: Metadata store for minecraft objects.

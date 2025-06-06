@@ -1,0 +1,13 @@
+storage:
+  type: sqlite
+
+  # Sqlite storage
+  sqlite:
+    file: data.db
+
+  # Yaml storage
+  yaml:
+    file: data.yml
+
+cache:
+  enable: false
