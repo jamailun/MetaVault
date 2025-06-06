@@ -32,7 +32,6 @@ public class YamlProvider extends StorageProvider<YamlStorage> {
     }
 
     private @NotNull YamlStorage generate() {
-        // Read config
         String fileName = readString(config, "file");
         File file = new File(MetaVault.dataFolder(), fileName);
         return new YamlStorage(file);

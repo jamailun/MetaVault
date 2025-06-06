@@ -21,7 +21,7 @@ public final class YamlMetaDataStore implements MetaDataStore {
     private final ConfigurationSection section;
     private final Runnable saveFunction;
 
-    public YamlMetaDataStore(@NotNull ConfigurationSection parent, @NotNull UUID owner, Runnable saveFunction) {
+    public YamlMetaDataStore(@NotNull ConfigurationSection parent, @NotNull UUID owner, @NotNull Runnable saveFunction) {
         this.owner = owner;
         this.saveFunction = saveFunction;
         String path = owner.toString();

@@ -10,6 +10,10 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface MetaDataTransaction {
 
+    /**
+     * Add a callback. Will only be run after the transaction has been applied AND is a success.
+     * @param callback a non-null runnable action.
+     */
     void addCallback(@NotNull Runnable callback);
 
     /**

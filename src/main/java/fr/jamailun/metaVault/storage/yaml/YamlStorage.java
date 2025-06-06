@@ -17,7 +17,8 @@ import java.util.UUID;
 public class YamlStorage implements Storage {
 
     private final File file;
-    private YamlConfiguration config;
+    private final YamlConfiguration config;
+
     private final Map<UUID, YamlMetaDataStore> openedStores = new HashMap<>();
 
     YamlStorage(@NotNull File file) {
