@@ -1,20 +1,18 @@
 package fr.jamailun.metaVault.storage.sqlite;
 
+import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.storage.MetaDataStore;
 import fr.jamailun.metaVault.storage.exception.TransactionFailedException;
 import fr.jamailun.metaVault.storage.sqlite.transaction.SqliteTransaction;
 import lombok.Getter;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -42,11 +40,24 @@ public final class SqliteMetaDataStore implements MetaDataStore {
     }
 
     @Override
-    public @NotNull CompletableFuture<Boolean> hasValue(@NotNull String key) {
-        CompletableFuture<Boolean> future = CompletableFuture.completedFuture(null);
+    public @NotNull Future<Boolean> hasValue(@NotNull String key) {
+        CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
         return future.thenApplyAsync(x -> {
-            //TODO table exists??
-            try(PreparedStatement st = sqlSupplier.get().prepareStatement("SELECT val FROM " + tableName + " WHERE kv_key = ?1")) {
+            // Table exists ?
+            if( ! tableExists.get()) {
+                try(Statement st = sqlSupplier.get().createStatement()) {
+                    ResultSet result = st.executeQuery("SELECT name FROM sqlite_master WHERE type = 'table' AND name = '" + tableName + "';");
+                    if(!result.next()) {
+                        MetaVault.info("table not here !");
+                        return false;
+                    }
+                } catch (SQLException e) {
+                    throw new TransactionFailedException("Could not test for table existence", e);
+                }
+            }
+
+            // Query value in table
+            try(PreparedStatement st = sqlSupplier.get().prepareStatement("SELECT kv_val FROM " + tableName + " WHERE kv_key = ?1;")) {
                 st.setString(1, key);
                 ResultSet result = st.executeQuery();
                 return result.next();

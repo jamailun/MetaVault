@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -36,6 +38,11 @@ public final class YamlMetaDataStore implements MetaDataStore {
     @Override
     public @NotNull YamlTransaction newTransaction() {
         return new YamlTransaction(section, saveFunction);
+    }
+
+    @Override
+    public @NotNull Future<Boolean> hasValue(@NotNull String key) {
+        return CompletableFuture.completedFuture(section.get(key) != null);
     }
 
 }
