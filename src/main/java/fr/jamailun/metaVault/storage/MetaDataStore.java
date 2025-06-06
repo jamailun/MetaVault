@@ -29,4 +29,11 @@ public interface MetaDataStore {
      */
     @NotNull Future<Boolean> hasValue(@NotNull String key);
 
+    /**
+     * Get stored value.
+     * @param key the key to fetch.
+     * @return a future.
+     */
+    @NotNull Future<String> getValue(@NotNull String key);
+
 }

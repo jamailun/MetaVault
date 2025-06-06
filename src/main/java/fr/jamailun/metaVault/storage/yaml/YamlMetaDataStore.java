@@ -37,4 +37,9 @@ public final class YamlMetaDataStore implements MetaDataStore {
         return CompletableFuture.completedFuture(section.get(key) != null);
     }
 
+    @Override
+    public @NotNull Future<String> getValue(@NotNull String key) {
+        return CompletableFuture.completedFuture(section.getString(key));
+    }
+
 }

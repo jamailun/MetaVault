@@ -44,26 +44,24 @@ public final class SqliteMetaDataStore implements MetaDataStore {
         CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
         return future.thenApplyAsync(x -> {
             // Table exists ?
-            if( ! tableExists.get()) {
-                try(Statement st = sqlSupplier.get().createStatement()) {
-                    ResultSet result = st.executeQuery("SELECT name FROM sqlite_master WHERE type = 'table' AND name = '" + tableName + "';");
-                    if(!result.next()) {
-                        MetaVault.info("table not here !");
-                        return false;
-                    }
-                } catch (SQLException e) {
-                    throw new TransactionFailedException("Could not test for table existence", e);
-                }
-            }
+            if(tableDoesNotExist())
+                return false;
 
             // Query value in table
-            try(PreparedStatement st = sqlSupplier.get().prepareStatement("SELECT kv_val FROM " + tableName + " WHERE kv_key = ?1;")) {
-                st.setString(1, key);
-                ResultSet result = st.executeQuery();
-                return result.next();
-            } catch(SQLException e) {
-                throw new TransactionFailedException("Could not query SQL", e);
-            }
+            return queryValue(key) != null;
+        });
+    }
+
+    @Override
+    public @NotNull Future<String> getValue(@NotNull String key) {
+        CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+        return future.thenApplyAsync(x -> {
+            // Table exists ?
+            if(tableDoesNotExist())
+                return null;
+
+            // Query value in table
+            return queryValue(key);
         });
     }
 
@@ -77,6 +75,34 @@ public final class SqliteMetaDataStore implements MetaDataStore {
                 + "kv_key varchar(255) PRIMARY KEY,"
                 + "kv_val string NOT NULL"
                 + ");";
+    }
+
+    private boolean tableDoesNotExist() {
+        if(tableExists.get())
+            return false;
+        try(Statement st = sqlSupplier.get().createStatement()) {
+            ResultSet result = st.executeQuery("SELECT name FROM sqlite_master WHERE type = 'table' AND name = '" + tableName + "';");
+            if(!result.next()) {
+                MetaVault.info("table not here !");
+                return true;
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new TransactionFailedException("Could not test for table existence", e);
+        }
+    }
+
+    private String queryValue(String key) {
+        try(PreparedStatement st = sqlSupplier.get().prepareStatement("SELECT kv_val FROM " + tableName + " WHERE kv_key = ?1;")) {
+            st.setString(1, key);
+            ResultSet result = st.executeQuery();
+            if(result.next()) {
+                return result.getString("kv_val");
+            }
+            return null;
+        } catch(SQLException e) {
+            throw new TransactionFailedException("Could not query SQL", e);
+        }
     }
 
 }
