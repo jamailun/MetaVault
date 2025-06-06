@@ -2,6 +2,7 @@ package fr.jamailun.metaVault.storage;
 
 import fr.jamailun.metaVault.storage.exception.StorageInitException;
 import fr.jamailun.metaVault.storage.sqlite.SqliteProvider;
+import fr.jamailun.metaVault.storage.yaml.YamlProvider;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,6 +32,7 @@ public final class StorageProviderFactory {
 
         StorageProvider<?> provider = switch (type.toLowerCase()) {
             case "sqlite" -> new SqliteProvider(section);
+            case "yaml" -> new YamlProvider(section);
             default -> throw new StorageInitException("Unknown storage type: '" + type + "'.");
         };
 

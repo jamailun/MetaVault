@@ -10,6 +10,8 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface MetaDataTransaction {
 
+    void addCallback(@NotNull Runnable callback);
+
     /**
      * Apply changes of the transaction.
      * @return a new future. This will do I/O.
