@@ -21,6 +21,7 @@ public class SqliteProvider extends StorageProvider<SqliteStorage> {
 
     public SqliteProvider(@NotNull ConfigurationSection config) {
         this.config = config;
+        MetaVault.info("Loading SQLite storage provider.");
     }
 
     @Override

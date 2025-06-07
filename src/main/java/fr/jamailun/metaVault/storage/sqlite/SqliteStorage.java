@@ -33,8 +33,10 @@ public class SqliteStorage implements Storage, Stoppable {
     @Override
     public void stop() {
         try {
-            if(!connection.isClosed())
-              connection.close();
+            if(!connection.isClosed()) {
+                MetaVault.info("Closing SQLite connection.");
+                connection.close();
+            }
         } catch (SQLException e) {
             MetaVault.error("Could not close SQLite connection.", e);
         }

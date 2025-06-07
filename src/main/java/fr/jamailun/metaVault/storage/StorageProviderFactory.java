@@ -1,5 +1,6 @@
 package fr.jamailun.metaVault.storage;
 
+import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.storage.exception.StorageInitException;
 import fr.jamailun.metaVault.storage.sqlite.SqliteProvider;
 import fr.jamailun.metaVault.storage.yaml.YamlProvider;
@@ -38,6 +39,7 @@ public final class StorageProviderFactory {
 
         // Open the storage
         storage = provider.get();
+        MetaVault.info("Storage opened successfully. Type: " + storage.getType() + ".");
 
         return storage;
     }

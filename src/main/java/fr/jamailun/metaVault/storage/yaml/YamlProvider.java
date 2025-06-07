@@ -17,6 +17,7 @@ public class YamlProvider extends StorageProvider<YamlStorage> {
 
     public YamlProvider(@NotNull ConfigurationSection config) {
         this.config = config;
+        MetaVault.info("Loading YAML storage provider.");
     }
 
     @Override
