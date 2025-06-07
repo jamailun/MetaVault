@@ -1,8 +1,17 @@
 name: MetaVault
-version: '1.0.0-SNAPSHOT'
+version: '${project.version}'
 main: fr.jamailun.metaVault.MetaVault
 api-version: '1.21'
 prefix: MeV
 load: STARTUP
 authors: [ jamailun ]
 description: Metadata store for minecraft objects.
+
+commands:
+  meta-vault:
+    permission: meta-vault.cmd
+    description: "Query and update meta-vault data."
+
+permissions:
+  meta-vault.cmd:
+    default: op

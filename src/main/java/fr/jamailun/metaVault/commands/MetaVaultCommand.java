@@ -60,11 +60,10 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
         UUID uuid = player.getUniqueId();
         MetaDataStore store = storage.getStore(uuid);
 
-
         if(args.length < 3)
             return error(sender, "Specify the key to use.");
 
-        if("store.has".equalsIgnoreCase(args[2])) {
+        if("store.has".equalsIgnoreCase(args[0])) {
             store.hasValue(args[2]).handle((result,err) -> {
                 if(err != null) {
                     error(sender, "Error during query: " + err.getMessage());
@@ -76,7 +75,7 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
             return true;
         }
 
-        if("store.get".equalsIgnoreCase(args[2])) {
+        if("store.get".equalsIgnoreCase(args[0])) {
             store.getValue(args[2]).handle((result,err) -> {
                 if(err != null) {
                     error(sender, "Error during query: " + err.getMessage());
@@ -88,7 +87,7 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
             return true;
         }
 
-        if("store.set".equalsIgnoreCase(args[2])) {
+        if("store.set".equalsIgnoreCase(args[0])) {
             if(args.length < 4)
                 return error(sender, "Missing new value to set.");
             String newValue = String.join(" ", List.of(args).subList(3, args.length));

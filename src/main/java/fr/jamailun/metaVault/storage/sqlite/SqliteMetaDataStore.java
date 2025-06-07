@@ -1,6 +1,5 @@
 package fr.jamailun.metaVault.storage.sqlite;
 
-import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.storage.MetaDataStore;
 import fr.jamailun.metaVault.storage.exception.TransactionFailedException;
 import fr.jamailun.metaVault.storage.sqlite.transaction.SqliteTransaction;
@@ -81,11 +80,7 @@ public final class SqliteMetaDataStore implements MetaDataStore {
             return false;
         try(Statement st = sqlSupplier.get().createStatement()) {
             ResultSet result = st.executeQuery("SELECT name FROM sqlite_master WHERE type = 'table' AND name = '" + tableName + "';");
-            if(!result.next()) {
-                MetaVault.info("table not here !");
-                return true;
-            }
-            return false;
+            return !result.next();
         } catch (SQLException e) {
             throw new TransactionFailedException("Could not test for table existence", e);
         }
