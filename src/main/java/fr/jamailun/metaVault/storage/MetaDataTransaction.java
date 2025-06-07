@@ -27,7 +27,18 @@ public interface MetaDataTransaction {
      * Set a key/value entry in the store.
      * @param key the non-null key.
      * @param value a value. If null, remove the entry.
+     * @return this
      */
     @NotNull MetaDataTransaction setKeyValue(@NotNull String key, @Nullable String value);
+
+    /**
+     * Remove a value.
+     * @param key the key to remove.
+     * @return this.
+     */
+    default @NotNull MetaDataTransaction remove(@NotNull String key) {
+        setKeyValue(key, null);
+        return this;
+    }
 
 }

@@ -1,5 +1,6 @@
 package fr.jamailun.metaVault.storage.yaml;
 
+import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.storage.MetaDataTransaction;
 import fr.jamailun.metaVault.storage.common.AbstractTransaction;
 import fr.jamailun.metaVault.storage.exception.TransactionFailedException;
@@ -29,6 +30,7 @@ public class YamlTransaction extends AbstractTransaction {
     public @NotNull CompletableFuture<Void> apply() {
         CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
         future = future.thenRunAsync(() -> {
+            MetaVault.debug("[Yaml::transaction] Starting execution.");
             changes.forEach(section::set);
             if(fakeLatency > 0) {
                 try {
@@ -38,9 +40,14 @@ public class YamlTransaction extends AbstractTransaction {
                 }
             }
             saveFunction.run();
+            MetaVault.debug("[Yaml::transaction] File-save done.");
             callbacks.forEach(Runnable::run);
+            MetaVault.debug("[Yaml::transaction] Callbacks done.");
         });
-        future = future.thenRunAsync(() -> changes.forEach(observeEvent));
+        future = future.thenRunAsync(() -> {
+            changes.forEach(observeEvent);
+            MetaVault.debug("[Yaml::transaction] Observers done.");
+        });
         return future;
     }
 

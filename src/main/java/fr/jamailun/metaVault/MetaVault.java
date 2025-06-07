@@ -24,20 +24,23 @@ public final class MetaVault extends JavaPlugin {
     private static MetaVault instance;
     private Storage storage;
     @Getter private static @Nullable String initError;
+    private static boolean debug = false;
 
     @Override
     public void onLoad() {
         instance = this;
 
-        // Read
+        // Read config
         saveDefaultConfig();
         ConfigurationSection storageConfig = getConfig().getConfigurationSection("storage");
+        debug = getConfig().getBoolean("debug", false);
         if(storageConfig == null) {
             initError = "Missing 'storage' section in the configuration.";
             error("Could not initialize plugin. " + initError);
             return;
         }
 
+        // Generate storage
         try {
             storage = new StorageProviderFactory(storageConfig).getStorage();
         } catch (StorageInitException e) {
@@ -62,6 +65,11 @@ public final class MetaVault extends JavaPlugin {
             stoppable.stop();
             info("Storage stopped.");
         }
+    }
+
+    public static void debug(@NotNull String message) {
+        if(debug)
+            instance.getLogger().log(Level.INFO, "[DEBUG] " + message);
     }
 
     public static void info(@NotNull String message) {

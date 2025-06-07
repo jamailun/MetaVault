@@ -1,6 +1,7 @@
 package fr.jamailun.metaVault.commands;
 
 import fr.jamailun.metaVault.storage.MetaDataStore;
+import fr.jamailun.metaVault.storage.MetaDataTransaction;
 import fr.jamailun.metaVault.storage.Storage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -8,17 +9,14 @@ import org.bukkit.command.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Command handling admin actions.
  */
 public class MetaVaultCommand implements TabExecutor, CommandExecutor {
 
-    private static final List<String> ARGS = List.of("status", "store.get", "store.has", "store.set");
+    private static final List<String> ARGS = List.of("status", "store.get", "store.has", "store.remove", "store.clear", "store.set", "store.keys", "store.entries");
 
     private final Storage storage;
     private final String pluginError;
@@ -60,6 +58,57 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
         UUID uuid = player.getUniqueId();
         MetaDataStore store = storage.getStore(uuid);
 
+        if("store.keys".equalsIgnoreCase(args[0])) {
+            store.listKeys().handle((result,err) -> {
+                if(err != null) {
+                    error(sender, "Error during query: " + err.getMessage());
+                } else {
+                    info(sender, "store[§b"+args[1]+"§7].keys() = §f" + result);
+                }
+                return null;
+            });
+            return true;
+        }
+        if("store.clear".equalsIgnoreCase(args[0])) {
+            store.listKeys().handle((result,err) -> {
+                if(err != null) {
+                    error(sender, "Error during query: " + err.getMessage());
+                    return null;
+                }
+                if(result.isEmpty()) {
+                    info(sender, "store[§b"+args[1]+"§7].clear() : already empty.");
+                    return null;
+                }
+                MetaDataTransaction transaction = store.newTransaction();
+                result.forEach(transaction::remove);
+                return transaction.apply().handle((x,err2) -> {
+                    if(err2 != null) {
+                        error(sender, "Error during update: " + err2.getMessage());
+                    } else {
+                        info(sender, "store[§b"+args[1]+"§7].clear() : removed " + result.size() + " entries.");
+                    }
+                    return null;
+                });
+            });
+            return true;
+        }
+
+        if("store.entries".equalsIgnoreCase(args[0])) {
+            store.getAllEntries().handle((result,err) -> {
+                if(err != null) {
+                    error(sender, "Error during query: " + err.getMessage());
+                } else if(result.isEmpty()) {
+                    info(sender, "store[§b"+args[1]+"§7].entries() = §f{}");
+                } else {
+                    StringJoiner sj = new StringJoiner("§7,\n  ", "{\n  ", "\n§7}");
+                    result.forEach((k,v) -> sj.add("§7[§e"+k+"§7]=§f"+v));
+                    info(sender, "store[§b"+args[1]+"§7].entries() = §f" + sj);
+                }
+                return null;
+            });
+            return true;
+        }
+
         if(args.length < 3)
             return error(sender, "Specify the key to use.");
 
@@ -68,7 +117,19 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
                 if(err != null) {
                     error(sender, "Error during query: " + err.getMessage());
                 } else {
-                    info(sender, "store["+args[1]+"§7].has(§e" + args[2] + "§7) = " + (result?"§atrue":"§cfalse"));
+                    info(sender, "store[§b"+args[1]+"§7].has(§e" + args[2] + "§7) = " + (result?"§atrue":"§cfalse"));
+                }
+                return null;
+            });
+            return true;
+        }
+
+        if("store.remove".equalsIgnoreCase(args[0])) {
+            store.newTransaction().remove(args[2]).apply().handle((result,err) -> {
+                if(err != null) {
+                    error(sender, "Error during query: " + err.getMessage());
+                } else {
+                    info(sender, "store[§b"+args[1]+"§7].remove(§e" + args[2] + "§7) : done.");
                 }
                 return null;
             });
@@ -80,7 +141,7 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
                 if(err != null) {
                     error(sender, "Error during query: " + err.getMessage());
                 } else {
-                    info(sender, "store["+args[1]+"§7].get(§e" + args[2] + "§7) = " + (result==null?"§c§onull":"§f"+result));
+                    info(sender, "store[§b"+args[1]+"§7].get(§e" + args[2] + "§7) = " + (result==null?"§c§onull":"§f"+result));
                 }
                 return null;
             });
@@ -95,7 +156,7 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
                 if(err != null) {
                     error(sender, "Error during transaction: " + err.getMessage());
                 } else {
-                    info(sender, "store["+args[1]+"§7].get(§e" + args[2] + "§7) <- \"§f" + newValue + "§7\".");
+                    info(sender, "store[§b"+args[1]+"§7].get(§e" + args[2] + "§7) <- \"§f" + newValue + "§7\".");
                 }
                 return null;
             });

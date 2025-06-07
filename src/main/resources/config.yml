@@ -8,7 +8,9 @@ storage:
   # Yaml storage
   yaml:
     file: data.yml
-    fake-latency: 0
+    fake-latency: 0 # for debug purpose
 
 cache:
   enable: false
+
+debug: false

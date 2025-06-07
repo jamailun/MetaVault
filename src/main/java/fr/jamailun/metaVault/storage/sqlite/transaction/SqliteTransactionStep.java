@@ -1,5 +1,6 @@
 package fr.jamailun.metaVault.storage.sqlite.transaction;
 
+import fr.jamailun.metaVault.MetaVault;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,7 +37,7 @@ public class SqliteTransactionStep {
                 statement.executeUpdate();
             }
         }
-
+        MetaVault.debug("[Sqlite::step] Ran " + requestSql);
     }
 
 }

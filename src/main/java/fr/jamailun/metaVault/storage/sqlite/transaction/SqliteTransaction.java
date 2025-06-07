@@ -1,5 +1,6 @@
 package fr.jamailun.metaVault.storage.sqlite.transaction;
 
+import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.storage.MetaDataTransaction;
 import fr.jamailun.metaVault.storage.common.AbstractTransaction;
 import fr.jamailun.metaVault.storage.exception.TransactionFailedException;
@@ -42,6 +43,7 @@ public class SqliteTransaction extends AbstractTransaction {
     public @NotNull CompletableFuture<Void> apply() {
         CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
         Connection sql = sqlSupplier.get();
+        MetaVault.debug("[Sqlite::transaction] Starting execution.");
         for(SqliteTransactionStep step : steps) {
             future = future.thenRunAsync(() -> {
                 try {
@@ -51,15 +53,23 @@ public class SqliteTransaction extends AbstractTransaction {
                 }
             });
         }
-        future.thenRunAsync(() -> callbacks.forEach(Runnable::run));
         future.thenRunAsync(() -> {
             try {
                 sql.commit();
             } catch (SQLException e) {
                 throw new TransactionFailedException("Could not apply commit SQLite transaction.", e);
+            } finally {
+                MetaVault.debug("[Sqlite::transaction] Commit done.");
             }
         });
-        future = future.thenRunAsync(() -> changes.forEach(observeEvent));
+        future.thenRunAsync(() -> {
+            callbacks.forEach(Runnable::run);
+            MetaVault.debug("[Sqlite::transaction] Callbacks done.");
+        });
+        future = future.thenRunAsync(() -> {
+            changes.forEach(observeEvent);
+            MetaVault.debug("[Sqlite::transaction] Observers done.");
+        });
         return future;
     }
 

@@ -6,8 +6,9 @@ import fr.jamailun.metaVault.storage.common.ObserveEvent;
 import lombok.Getter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public final class YamlMetaDataStore implements MetaDataStore {
@@ -45,6 +46,20 @@ public final class YamlMetaDataStore implements MetaDataStore {
     @Override
     public @NotNull CompletableFuture<String> getValue(@NotNull String key) {
         return CompletableFuture.completedFuture(section.getString(key));
+    }
+
+    @Override
+    public @NotNull @UnmodifiableView CompletableFuture<List<String>> listKeys() {
+        List<String> keys = new ArrayList<>(section.getKeys(false));
+        return CompletableFuture.completedFuture(Collections.unmodifiableList(keys));
+    }
+
+    @Override
+    public @NotNull @UnmodifiableView CompletableFuture<Map<String, String>> getAllEntries() {
+        Map<String, String> map = new LinkedHashMap<>();
+        for(String key : section.getKeys(false))
+            map.put(key, section.getString(key));
+        return CompletableFuture.completedFuture(Collections.unmodifiableMap(map));
     }
 
     private void valueChanged(@NotNull String key, @NotNull String value) {

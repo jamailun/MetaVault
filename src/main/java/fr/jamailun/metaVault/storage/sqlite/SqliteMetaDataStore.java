@@ -7,10 +7,10 @@ import fr.jamailun.metaVault.storage.sqlite.transaction.SqliteTransaction;
 import lombok.Getter;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnmodifiableView;
 
 import java.sql.*;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -67,6 +67,30 @@ public final class SqliteMetaDataStore implements MetaDataStore {
         });
     }
 
+    @Override
+    public @NotNull @UnmodifiableView CompletableFuture<List<String>> listKeys() {
+        CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+        return future.thenApplyAsync(x -> {
+            // Table exists ?
+            if(tableDoesNotExist())
+                return Collections.emptyList();
+            // Query value in table
+            return listEntries().keySet().stream().toList();
+        });
+    }
+
+    @Override
+    public @NotNull @UnmodifiableView CompletableFuture<Map<String, String>> getAllEntries() {
+        CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
+        return future.thenApplyAsync(x -> {
+            // Table exists ?
+            if(tableDoesNotExist())
+                return Collections.emptyMap();
+            // Query value in table
+            return Collections.unmodifiableMap(listEntries());
+        });
+    }
+
     /**
      * Table structure.
      * @return static SQL syntax.
@@ -98,6 +122,21 @@ public final class SqliteMetaDataStore implements MetaDataStore {
                 return result.getString("kv_val");
             }
             return null;
+        } catch(SQLException e) {
+            throw new TransactionFailedException("Could not query SQL", e);
+        }
+    }
+
+    private Map<String, String> listEntries() {
+        try(Statement st = sqlSupplier.get().createStatement()) {
+            ResultSet result = st.executeQuery("SELECT kv_key, kv_val FROM " + tableName + " WHERE 1;");
+            Map<String, String> map = new LinkedHashMap<>();
+            while(result.next()) {
+                String key = result.getString("kv_key");
+                String val = result.getString("kv_val");
+                map.put(key, val);
+            }
+            return map;
         } catch(SQLException e) {
             throw new TransactionFailedException("Could not query SQL", e);
         }
