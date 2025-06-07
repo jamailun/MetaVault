@@ -1,5 +1,6 @@
 package fr.jamailun.metaVault.storage;
 
+import fr.jamailun.metaVault.observer.Observable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -7,7 +8,7 @@ import java.util.UUID;
 /**
  * A storage. Contains any number of {@link MetaDataStore}.
  */
-public interface Storage {
+public interface Storage extends Observable {
 
     /**
      * Get the Storage type.

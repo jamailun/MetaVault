@@ -1,6 +1,7 @@
 package fr.jamailun.metaVault.storage.sqlite.transaction;
 
 import fr.jamailun.metaVault.storage.MetaDataTransaction;
+import fr.jamailun.metaVault.storage.common.AbstractTransaction;
 import fr.jamailun.metaVault.storage.exception.TransactionFailedException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,30 +9,23 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
 
 /**
  * A full transaction, buildable.
  */
-public class SqliteTransaction implements MetaDataTransaction {
+public class SqliteTransaction extends AbstractTransaction {
 
     private final Supplier<Connection> sqlSupplier;
     private final String table;
 
     private final List<SqliteTransactionStep> steps = new ArrayList<>();
-    private final Set<Runnable> callbacks = new HashSet<>();
 
     public SqliteTransaction(@NotNull String table, @NotNull Supplier<Connection> sqlSupplier) {
         this.sqlSupplier = sqlSupplier;
         this.table = table;
-    }
-
-    public void addCallback(@NotNull Runnable callback) {
-        callbacks.add(callback);
     }
 
     public void addStep(@NotNull String sql, @NotNull List<String> args) {

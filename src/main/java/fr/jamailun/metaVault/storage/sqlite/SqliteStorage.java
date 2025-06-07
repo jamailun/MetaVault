@@ -3,6 +3,7 @@ package fr.jamailun.metaVault.storage.sqlite;
 import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.storage.Stoppable;
 import fr.jamailun.metaVault.storage.Storage;
+import fr.jamailun.metaVault.storage.common.AbstractStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
@@ -11,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class SqliteStorage implements Storage, Stoppable {
+public class SqliteStorage extends AbstractStorage implements Stoppable {
 
     private final Connection connection;
     private final Map<UUID, SqliteMetaDataStore> openedStores = new HashMap<>();

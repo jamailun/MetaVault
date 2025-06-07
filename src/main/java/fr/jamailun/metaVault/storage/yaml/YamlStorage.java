@@ -1,6 +1,6 @@
 package fr.jamailun.metaVault.storage.yaml;
 
-import fr.jamailun.metaVault.storage.Storage;
+import fr.jamailun.metaVault.storage.common.AbstractStorage;
 import fr.jamailun.metaVault.storage.exception.TransactionFailedException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +14,7 @@ import java.util.UUID;
 /**
  * Storage into a YAML file.
  */
-public class YamlStorage implements Storage {
+public class YamlStorage extends AbstractStorage {
 
     private final File file;
     private final YamlConfiguration config;
