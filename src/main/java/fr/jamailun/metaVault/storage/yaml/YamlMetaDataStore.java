@@ -7,7 +7,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 
 public final class YamlMetaDataStore implements MetaDataStore {
 
@@ -33,12 +32,12 @@ public final class YamlMetaDataStore implements MetaDataStore {
     }
 
     @Override
-    public @NotNull Future<Boolean> hasValue(@NotNull String key) {
+    public @NotNull CompletableFuture<Boolean> hasValue(@NotNull String key) {
         return CompletableFuture.completedFuture(section.get(key) != null);
     }
 
     @Override
-    public @NotNull Future<String> getValue(@NotNull String key) {
+    public @NotNull CompletableFuture<String> getValue(@NotNull String key) {
         return CompletableFuture.completedFuture(section.getString(key));
     }
 

@@ -12,7 +12,6 @@ import java.sql.*;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -40,7 +39,7 @@ public final class SqliteMetaDataStore implements MetaDataStore {
     }
 
     @Override
-    public @NotNull Future<Boolean> hasValue(@NotNull String key) {
+    public @NotNull CompletableFuture<Boolean> hasValue(@NotNull String key) {
         CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
         return future.thenApplyAsync(x -> {
             // Table exists ?
@@ -53,7 +52,7 @@ public final class SqliteMetaDataStore implements MetaDataStore {
     }
 
     @Override
-    public @NotNull Future<String> getValue(@NotNull String key) {
+    public @NotNull CompletableFuture<String> getValue(@NotNull String key) {
         CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
         return future.thenApplyAsync(x -> {
             // Table exists ?

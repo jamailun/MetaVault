@@ -3,6 +3,7 @@ package fr.jamailun.metaVault.storage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 /**
@@ -27,13 +28,13 @@ public interface MetaDataStore {
      * @param key the key to fetch.
      * @return a future.
      */
-    @NotNull Future<Boolean> hasValue(@NotNull String key);
+    @NotNull CompletableFuture<Boolean> hasValue(@NotNull String key);
 
     /**
      * Get stored value.
      * @param key the key to fetch.
      * @return a future.
      */
-    @NotNull Future<String> getValue(@NotNull String key);
+    @NotNull CompletableFuture<String> getValue(@NotNull String key);
 
 }
