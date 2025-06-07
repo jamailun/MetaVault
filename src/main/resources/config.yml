@@ -8,6 +8,7 @@ storage:
   # Yaml storage
   yaml:
     file: data.yml
+    fake-latency: 0
 
 cache:
   enable: false

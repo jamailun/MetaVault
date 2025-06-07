@@ -22,16 +22,19 @@ public abstract class AbstractStorage implements Storage {
     @Override
     public void observe(@NotNull Observer observer) {
         observers.add(observer);
+        MetaVault.info("Observer registered: " + observer + ".");
     }
 
     @Override
     public void stopObserving(@NotNull Observer observer) {
         observers.remove(observer);
+        MetaVault.info("Observer un-registered: " + observer + ".");
     }
 
     @Override
     public void stopObserving(@NotNull Plugin plugin) {
         observers.removeIf(o -> Objects.equals(plugin, o.getPlugin()));
+        MetaVault.info("Plugin un-registered: " + plugin.getName() + ".");
     }
 
     /**

@@ -18,11 +18,13 @@ public class YamlStorage extends AbstractStorage {
 
     private final File file;
     private final YamlConfiguration config;
+    private final long fakeLatency;
 
     private final Map<UUID, YamlMetaDataStore> openedStores = new HashMap<>();
 
-    YamlStorage(@NotNull File file) {
+    YamlStorage(@NotNull File file, long fakeLatency) {
         this.file = file;
+        this.fakeLatency = fakeLatency;
         config = YamlConfiguration.loadConfiguration(file);
     }
 
@@ -33,7 +35,7 @@ public class YamlStorage extends AbstractStorage {
 
     @Override
     public @NotNull YamlMetaDataStore getStore(@NotNull UUID owner) {
-        return openedStores.computeIfAbsent(owner, k -> new YamlMetaDataStore(config, k, this::save, this::propagateChange));
+        return openedStores.computeIfAbsent(owner, k -> new YamlMetaDataStore(config, k, fakeLatency, this::save, this::propagateChange));
     }
 
     private synchronized void save() {

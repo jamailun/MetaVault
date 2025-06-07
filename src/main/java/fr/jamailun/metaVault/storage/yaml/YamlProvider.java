@@ -34,8 +34,10 @@ public class YamlProvider extends StorageProvider<YamlStorage> {
 
     private @NotNull YamlStorage generate() {
         String fileName = readString(config, "file");
+        long fakeLatency = config.getLong("fake-latency");
+
         File file = new File(MetaVault.dataFolder(), fileName);
-        return new YamlStorage(file);
+        return new YamlStorage(file, fakeLatency);
     }
 
 }

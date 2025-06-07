@@ -1,6 +1,7 @@
 package fr.jamailun.metaVault;
 
 import fr.jamailun.metaVault.commands.MetaVaultCommand;
+import fr.jamailun.metaVault.observer.Observer;
 import fr.jamailun.metaVault.storage.Stoppable;
 import fr.jamailun.metaVault.storage.Storage;
 import fr.jamailun.metaVault.storage.StorageProviderFactory;
@@ -8,14 +9,19 @@ import fr.jamailun.metaVault.storage.exception.StorageInitException;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.UUID;
 import java.util.logging.Level;
 
+/**
+ * Plugin entry point.
+ */
 public final class MetaVault extends JavaPlugin {
 
     private static MetaVault instance;
@@ -49,7 +55,23 @@ public final class MetaVault extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        // Register command
         new MetaVaultCommand(storage, initError);
+
+        // Debug observer
+        if(storage != null) {
+            Plugin that = this;
+            storage.observe(new Observer() {
+                @Override
+                public @NotNull Plugin getPlugin() {
+                    return that;
+                }
+                @Override
+                public void onValueChanged(@NotNull UUID uuid, @NotNull String key, @Nullable String value) {
+                    info("VALUE CHANGED : " + uuid + "[" + key + "] = " + (value==null?"null":"(" + value + ")"));
+                }
+            });
+        }
     }
 
     @Override
