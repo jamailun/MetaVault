@@ -1,5 +1,6 @@
 package fr.jamailun.metaVault.storage.common;
 
+import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.observer.Observer;
 import fr.jamailun.metaVault.storage.Storage;
 import org.bukkit.plugin.Plugin;
@@ -40,7 +41,13 @@ public abstract class AbstractStorage implements Storage {
      * @param value nullable data-value.
      */
     protected void propagateChange(@NotNull UUID owner, @NotNull String key, @Nullable String value) {
-        observers.forEach(o -> o.onValueChanged(owner, key, value));
+        observers.forEach(o -> {
+            try {
+                o.onValueChanged(owner, key, value);
+            } catch(Exception e) {
+                MetaVault.error("Error on observer " + o + "for entry " + owner + "["+key+"] <- "+value+")", e);
+            }
+        });
     }
 
 }
