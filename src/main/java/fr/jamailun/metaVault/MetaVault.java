@@ -1,14 +1,17 @@
 package fr.jamailun.metaVault;
 
+import fr.jamailun.metaVault.commands.MetaVaultCommand;
 import fr.jamailun.metaVault.storage.Stoppable;
 import fr.jamailun.metaVault.storage.Storage;
 import fr.jamailun.metaVault.storage.StorageProviderFactory;
 import fr.jamailun.metaVault.storage.exception.StorageInitException;
+import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.util.logging.Level;
@@ -17,6 +20,7 @@ public final class MetaVault extends JavaPlugin {
 
     private static MetaVault instance;
     private Storage storage;
+    @Getter private static @Nullable String initError;
 
     @Override
     public void onLoad() {
@@ -26,22 +30,26 @@ public final class MetaVault extends JavaPlugin {
         saveDefaultConfig();
         ConfigurationSection storageConfig = getConfig().getConfigurationSection("storage");
         if(storageConfig == null) {
-            error("Could not initialize plugin. Missing 'storage' section in the configuration !");
-            error("Plugin will be disabled.");
-            Bukkit.getPluginManager().disablePlugin(this);
+            initError = "Missing 'storage' section in the configuration.";
+            error("Could not initialize plugin. " + initError);
             return;
         }
 
         try {
             storage = new StorageProviderFactory(storageConfig).getStorage();
         } catch (StorageInitException e) {
+            initError = e.getMessage();
             error("Could not initialize plugin.", e);
-            error("Plugin will be disabled.");
-            Bukkit.getPluginManager().disablePlugin(this);
+            return;
         }
 
-        // Register the storage
+        // Register the storage (only if success)
         Bukkit.getServicesManager().register(Storage.class, storage, this, ServicePriority.Normal);
+    }
+
+    @Override
+    public void onEnable() {
+        new MetaVaultCommand(storage, initError);
     }
 
     @Override
