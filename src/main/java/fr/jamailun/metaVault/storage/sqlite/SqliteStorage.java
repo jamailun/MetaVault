@@ -2,7 +2,6 @@ package fr.jamailun.metaVault.storage.sqlite;
 
 import fr.jamailun.metaVault.MetaVault;
 import fr.jamailun.metaVault.storage.Stoppable;
-import fr.jamailun.metaVault.storage.Storage;
 import fr.jamailun.metaVault.storage.common.AbstractStorage;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,7 +27,7 @@ public class SqliteStorage extends AbstractStorage implements Stoppable {
 
     @Override
     public @NotNull SqliteMetaDataStore getStore(@NotNull UUID owner) {
-        return openedStores.computeIfAbsent(owner, k -> new SqliteMetaDataStore(k, () -> connection));
+        return openedStores.computeIfAbsent(owner, k -> new SqliteMetaDataStore(k, () -> connection, this::propagateChange));
     }
 
     @Override

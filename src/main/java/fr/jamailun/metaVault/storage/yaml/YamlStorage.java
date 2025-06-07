@@ -33,7 +33,7 @@ public class YamlStorage extends AbstractStorage {
 
     @Override
     public @NotNull YamlMetaDataStore getStore(@NotNull UUID owner) {
-        return openedStores.computeIfAbsent(owner, k -> new YamlMetaDataStore(config, k, this::save));
+        return openedStores.computeIfAbsent(owner, k -> new YamlMetaDataStore(config, k, this::save, this::propagateChange));
     }
 
     private synchronized void save() {

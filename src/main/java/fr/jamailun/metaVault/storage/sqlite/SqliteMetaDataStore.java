@@ -1,6 +1,7 @@
 package fr.jamailun.metaVault.storage.sqlite;
 
 import fr.jamailun.metaVault.storage.MetaDataStore;
+import fr.jamailun.metaVault.storage.common.ObserveEvent;
 import fr.jamailun.metaVault.storage.exception.TransactionFailedException;
 import fr.jamailun.metaVault.storage.sqlite.transaction.SqliteTransaction;
 import lombok.Getter;
@@ -19,17 +20,20 @@ public final class SqliteMetaDataStore implements MetaDataStore {
     @Getter private final UUID owner;
     private final String tableName;
     private final Supplier<Connection> sqlSupplier;
+    private final ObserveEvent observeEvent;
+
     private final AtomicBoolean tableExists = new AtomicBoolean(false);
 
-    public SqliteMetaDataStore(@NotNull UUID owner, @NotNull Supplier<Connection> sqlSupplier) {
+    public SqliteMetaDataStore(@NotNull UUID owner, @NotNull Supplier<Connection> sqlSupplier, @NotNull ObserveEvent observeEvent) {
         this.owner = owner;
         tableName = "kv_" + owner.toString().replace("-", "");
         this.sqlSupplier = sqlSupplier;
+        this.observeEvent = observeEvent;
     }
 
     @Override
     public @NotNull SqliteTransaction newTransaction() {
-        SqliteTransaction transaction = new SqliteTransaction(tableName, sqlSupplier);
+        SqliteTransaction transaction = new SqliteTransaction(tableName, sqlSupplier, this::valueChanged);
         if( ! tableExists.get()) {
             transaction.addStep(getStructure(tableName), List.of());
             transaction.addCallback(() -> tableExists.set(true));
@@ -97,6 +101,11 @@ public final class SqliteMetaDataStore implements MetaDataStore {
         } catch(SQLException e) {
             throw new TransactionFailedException("Could not query SQL", e);
         }
+    }
+
+
+    private void valueChanged(@NotNull String key, @NotNull String value) {
+        observeEvent.apply(owner, key, value);
     }
 
 }

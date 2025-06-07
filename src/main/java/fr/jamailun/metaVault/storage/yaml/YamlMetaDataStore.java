@@ -1,7 +1,10 @@
 package fr.jamailun.metaVault.storage.yaml;
 
 import fr.jamailun.metaVault.storage.MetaDataStore;
+import fr.jamailun.metaVault.storage.MetaDataTransaction;
+import fr.jamailun.metaVault.storage.common.ObserveEvent;
 import lombok.Getter;
+import org.apache.logging.log4j.util.TriConsumer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.NotNull;
 
@@ -13,10 +16,12 @@ public final class YamlMetaDataStore implements MetaDataStore {
     @Getter private final UUID owner;
     private final ConfigurationSection section;
     private final Runnable saveFunction;
+    private final ObserveEvent observeEvent;
 
-    public YamlMetaDataStore(@NotNull ConfigurationSection parent, @NotNull UUID owner, @NotNull Runnable saveFunction) {
+    public YamlMetaDataStore(@NotNull ConfigurationSection parent, @NotNull UUID owner, @NotNull Runnable saveFunction, ObserveEvent observeEvent) {
         this.owner = owner;
         this.saveFunction = saveFunction;
+        this.observeEvent = observeEvent;
         String path = owner.toString();
 
         if(parent.isConfigurationSection(path)) {
@@ -27,8 +32,8 @@ public final class YamlMetaDataStore implements MetaDataStore {
     }
 
     @Override
-    public @NotNull YamlTransaction newTransaction() {
-        return new YamlTransaction(section, saveFunction);
+    public @NotNull MetaDataTransaction newTransaction() {
+        return new YamlTransaction(section, saveFunction, this::valueChanged);
     }
 
     @Override
@@ -39,6 +44,10 @@ public final class YamlMetaDataStore implements MetaDataStore {
     @Override
     public @NotNull CompletableFuture<String> getValue(@NotNull String key) {
         return CompletableFuture.completedFuture(section.getString(key));
+    }
+
+    private void valueChanged(@NotNull String key, @NotNull String value) {
+        observeEvent.apply(owner, key, value);
     }
 
 }

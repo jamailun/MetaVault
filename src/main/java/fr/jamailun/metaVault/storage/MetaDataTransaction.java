@@ -13,8 +13,9 @@ public interface MetaDataTransaction {
     /**
      * Add a callback. Will only be run after the transaction has been applied AND is a success.
      * @param callback a non-null runnable action.
+     * @return this.
      */
-    void addCallback(@NotNull Runnable callback);
+    @NotNull MetaDataTransaction addCallback(@NotNull Runnable callback);
 
     /**
      * Apply changes of the transaction.

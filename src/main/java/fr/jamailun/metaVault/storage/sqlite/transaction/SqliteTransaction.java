@@ -9,8 +9,11 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 /**
@@ -20,12 +23,15 @@ public class SqliteTransaction extends AbstractTransaction {
 
     private final Supplier<Connection> sqlSupplier;
     private final String table;
+    private final BiConsumer<String, String> observeEvent;
 
+    private final Map<String, String> changes = new HashMap<>();
     private final List<SqliteTransactionStep> steps = new ArrayList<>();
 
-    public SqliteTransaction(@NotNull String table, @NotNull Supplier<Connection> sqlSupplier) {
+    public SqliteTransaction(@NotNull String table, @NotNull Supplier<Connection> sqlSupplier, BiConsumer<String, String> observeEvent) {
         this.sqlSupplier = sqlSupplier;
         this.table = table;
+        this.observeEvent = observeEvent;
     }
 
     public void addStep(@NotNull String sql, @NotNull List<String> args) {
@@ -53,6 +59,7 @@ public class SqliteTransaction extends AbstractTransaction {
                 throw new TransactionFailedException("Could not apply commit SQLite transaction.", e);
             }
         });
+        future = future.thenRunAsync(() -> changes.forEach(observeEvent));
         return future;
     }
 
@@ -63,6 +70,7 @@ public class SqliteTransaction extends AbstractTransaction {
         } else {
             addStep("INSERT OR REPLACE INTO "+table+" VALUES (?, ?);", List.of(key, value));
         }
+        changes.put(key, value);
         return this;
     }
 }
