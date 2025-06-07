@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>fr.jamailun</groupId>
-    <artifactId>MetaVault</artifactId>
+    <artifactId>metavault</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
 
@@ -91,4 +91,11 @@
             </resource>
         </resources>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/jamailun/MetaVault</url>
+        </repository>
+    </distributionManagement>
 </project>
