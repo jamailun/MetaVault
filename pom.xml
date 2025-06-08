@@ -93,9 +93,17 @@
     </build>
 
     <distributionManagement>
-        <repository>
+        <!--<repository>
             <id>github</id>
             <url>https://maven.pkg.github.com/jamailun/MetaVault</url>
+        </repository>-->
+        <repository>
+            <id>gitea</id>
+            <url>https://git.patte-de-coin.fr/api/packages/jamailun/maven</url>
         </repository>
+        <snapshotRepository>
+            <id>gitea</id>
+            <url>https://git.patte-de-coin.fr/api/packages/jamailun/maven</url>
+        </snapshotRepository>
     </distributionManagement>
 </project>
