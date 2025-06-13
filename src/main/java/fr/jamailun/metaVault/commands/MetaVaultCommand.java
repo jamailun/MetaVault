@@ -6,6 +6,7 @@ import fr.jamailun.metaVault.storage.Storage;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.*;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +55,8 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
         // store.X command. syntax = /label store.X <player> (key) (val)
         if(args.length < 2)
             return error(sender, "Specify the player to select the store");
-        OfflinePlayer player = Bukkit.getOfflinePlayer(args[1]);
+        OfflinePlayer player = extractPlayer(sender, args[1]);
+        if(player == null) return true;
         UUID uuid = player.getUniqueId();
         MetaDataStore store = storage.getStore(uuid);
 
@@ -194,5 +196,41 @@ public class MetaVaultCommand implements TabExecutor, CommandExecutor {
     private boolean info(@NotNull CommandSender sender, @NotNull String message) {
         sender.sendMessage("§7" + message);
         return true;
+    }
+
+    private @Nullable OfflinePlayer extractPlayer(CommandSender sender, String playerName) {
+        return switch(playerName) {
+            case "@a" -> {
+                sender.sendMessage("Invalid target. Only one element should be accepted.");
+                yield null;
+            }
+            case "@s" -> {
+                if(sender instanceof Player p) {
+                    yield p;
+                }
+                sender.sendMessage("Invalid target. To use @s, you must be a player.");
+                yield null;
+            }
+            case "@p" -> {
+                if(sender instanceof Player p) {
+                    yield p;
+                }
+                if(sender instanceof BlockCommandSender b) {
+                    Player closest = null;
+                    double dist = Double.MAX_VALUE;
+                    for(Player pl : b.getBlock().getWorld().getPlayers()) {
+                        double d = pl.getLocation().distanceSquared(b.getBlock().getLocation());
+                        if(d < dist) {
+                            dist = d;
+                            closest = pl;
+                        }
+                    }
+                    yield closest;
+                }
+                sender.sendMessage("Invalid target. To use @p, you must exist in the world.");
+                yield null;
+            }
+            default -> Bukkit.getOfflinePlayer(playerName);
+        };
     }
 }
